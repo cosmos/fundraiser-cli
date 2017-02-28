@@ -181,4 +181,4 @@ TODO: links
   console.log('Thank you for participating in the Cosmos fundraiser!')
 }
 
-main().catch((err) => { throw err })
+main().catch((err) => console.error(red(`An error occurred. Please ask for help.\n${err.stack}`)))
