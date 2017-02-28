@@ -3,12 +3,11 @@
 'use strict'
 
 const fs = require('fs')
-const { bold, cyan, yellow, green, red } = require('chalk')
+const { bold, cyan, red } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
 const struct = require('varstruct')
 const cfr = require('cosmos-fundraiser')
-const pkg = require('./package.json')
 
 console.log(cyan(`
  .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
@@ -25,15 +24,7 @@ Welcome to the Cosmos Fundraiser!
 
 Let's get started so you can purchase Atoms, the token used to
 participate in the Cosmos network.
-
-If you'd like to load an existing wallet file, run this tool with:
-`,
-green(`$ ${pkg.bin} <pathToWallet>
-`),
-yellow(`
-TODO: more information
 `)
-)
 
 async function main () {
   let testnet = process.env.NODE_ENV === 'development'
@@ -150,7 +141,7 @@ async function finalize (wallet, tx, testnet) {
   let finalTx = cfr.bitcoin.createFinalTx(wallet, tx, testnet)
   console.log(`
 Ready to finalize purchase:
-  ${bold('Paid:')} ${finalTx.paidAmount / 1e8} BTC
+  ${bold('Paying:')} ${finalTx.paidAmount / 1e8} BTC
   ${bold('Transaction fee:')} ${finalTx.feeAmount / 1e8} BTC
   ${bold('Purchasing:')} ${finalTx.atomAmount} ATOM
   ${bold('Cosmos address:')} ${wallet.addresses.cosmos}
