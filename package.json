@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "CLI tool for purchasing Atoms in the Cosmos Fundraiser",
   "main": "build/main.js",
-  "bin": "cosmos-fundraiser",
+  "bin": { "cosmos-fundraiser": "./build/main.js" },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "mkdir -p build && babel --plugins transform-async-to-generator,transform-runtime --presets es2015 bin/main.js > build/main.js",
