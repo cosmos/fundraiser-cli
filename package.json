@@ -28,6 +28,7 @@
     "cosmos-fundraiser": "^1.1.0",
     "inquirer": "^3.0.4",
     "ora": "^1.1.0",
+    "pbkdf2": "^3.0.9",
     "varstruct": "^6.1.0"
   },
   "devDependencies": {
