@@ -6,7 +6,6 @@ const fs = require('fs')
 const { bold, cyan, red } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
-const struct = require('varstruct')
 const cfr = require('cosmos-fundraiser')
 
 console.log(cyan(`
@@ -34,12 +33,6 @@ async function main () {
   await finalize(wallet, tx, testnet)
 }
 
-const Wallet = struct([
-  { name: 'encryptedSeed', type: struct.VarBuffer(struct.Byte) },
-  { name: 'salt', type: struct.VarBuffer(struct.Byte) },
-  { name: 'iv', type: struct.VarBuffer(struct.Byte) }
-])
-
 async function createOrLoadWallet (path, testnet) {
   try {
     // test if we wallet exists and we have access
@@ -54,7 +47,7 @@ async function createOrLoadWallet (path, testnet) {
 
 async function loadWallet (path, testnet) {
   let walletBytes = fs.readFileSync(path)
-  let wallet = Wallet.decode(walletBytes)
+  let wallet = cft.decodeWallet(walletBytes)
   while (true) {
     let { password } = await prompt({
       type: 'password',
@@ -84,7 +77,7 @@ async function createWallet (path, testnet) {
   encryptSpinner.succeed('Encrypted wallet')
 
   let saveSpinner = createSpinner(`Saving wallet...`).start()
-  let walletBytes = Wallet.encode(encryptedSeed)
+  let walletBytes = cfr.encodeWallet(encryptedSeed)
   fs.writeFileSync(path, walletBytes)
   saveSpinner.succeed(`Saved wallet to ${path}`)
 
