@@ -1,6 +1,6 @@
 {
   "name": "cosmos-fundraiser-cli",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "CLI tool for purchasing Atoms in the Cosmos Fundraiser",
   "main": "build/main.js",
   "bin": {
