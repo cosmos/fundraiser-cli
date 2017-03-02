@@ -47,7 +47,7 @@ async function createOrLoadWallet (path, testnet) {
 
 async function loadWallet (path, testnet) {
   let walletBytes = fs.readFileSync(path)
-  let wallet = cft.decodeWallet(walletBytes)
+  let wallet = cfr.decodeWallet(walletBytes)
   while (true) {
     let { password } = await prompt({
       type: 'password',
