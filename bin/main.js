@@ -21,8 +21,8 @@ Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
 `
 Welcome to the Cosmos Fundraiser!
 
-Let's get started so you can purchase Atoms, the token used to
-participate in the Cosmos network.
+Let's get started so you can donate and receive Atoms, the tokens used
+to participate in the Cosmos network.
 `)
 
 async function main () {
@@ -116,7 +116,7 @@ ${bold('Minimum amount:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
 Your intermediate Bitcoin address is:
 ${cyan(address)}
 
-Send coins to this address to continue with your purchase.
+Send coins to this address to continue with your contribution.
 This address is owned by you, so you can get the coins back if you
 change your mind.
   `)
@@ -129,26 +129,26 @@ change your mind.
     })
   })
 }
-
+``
 async function finalize (wallet, tx, testnet) {
   let finalTx = cfr.bitcoin.createFinalTx(wallet, tx, testnet)
   console.log(`
-Ready to finalize purchase:
+Ready to finalize contribution:
   ${bold('Paying:')} ${finalTx.paidAmount / 1e8} BTC
   ${bold('Transaction fee:')} ${finalTx.feeAmount / 1e8} BTC
-  ${bold('Purchasing:')} ${finalTx.atomAmount} ATOM
+  ${bold('Receiving:')} ${finalTx.atomAmount} ATOM
   ${bold('Cosmos address:')} ${wallet.addresses.cosmos}
   `)
 
   let { agree } = await prompt({
     type: 'confirm',
     name: 'agree',
-    message: 'Have you read and understand the Terms of Service and Purchase Agreement?',
+    message: 'Have you read and understand the Terms of Service and Donation Agreement?',
     default: false
   })
   if (!agree) {
     console.log(red(`
-You can read the Terms of Service and Purchase Agreement here:
+You can read the Terms of Service and Donation Agreement here:
 TODO: links
     `))
     return
@@ -157,7 +157,7 @@ TODO: links
   let { confirm } = await prompt({
     type: 'confirm',
     name: 'confirm',
-    message: 'Finalize purchase of Atoms? You will NOT be able undo this transaction:',
+    message: 'Finalize contribution? You will NOT be able undo this transaction:',
     default: false
   })
   if (!confirm) return
@@ -170,7 +170,7 @@ TODO: links
     })
   })
   spinner.succeed('Transaction sent!')
-  console.log('TXID: ' + cyan(txid))
+  console.log('Bitcoin TXID: ' + cyan(txid))
   console.log('Thank you for participating in the Cosmos fundraiser!')
 }
 
