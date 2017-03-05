@@ -26,26 +26,25 @@ to participate in the Cosmos network.
 `)
 
 async function main () {
-  let testnet = process.env.NODE_ENV === 'development'
   let walletPath = process.argv[2] || './cosmos_fundraiser.wallet'
-  let wallet = await createOrLoadWallet(walletPath, testnet)
-  let tx = await waitForTx(wallet.addresses.bitcoin, testnet)
-  await finalize(wallet, tx, testnet)
+  let wallet = await createOrLoadWallet(walletPath)
+  let tx = await waitForTx(wallet.addresses.bitcoin)
+  await finalize(wallet, tx)
 }
 
-async function createOrLoadWallet (path, testnet) {
+async function createOrLoadWallet (path) {
   try {
     // test if we wallet exists and we have access
     fs.accessSync(path)
     console.log(`Found existing wallet file: ${path}`)
-    return await loadWallet(path, testnet)
+    return await loadWallet(path)
   } catch (err) {
     if (err.code !== 'ENOENT') throw err
-    return await createWallet(path, testnet)
+    return await createWallet(path)
   }
 }
 
-async function loadWallet (path, testnet) {
+async function loadWallet (path) {
   let walletBytes = fs.readFileSync(path)
   let wallet = cfr.decodeWallet(walletBytes)
   while (true) {
@@ -56,14 +55,14 @@ async function loadWallet (path, testnet) {
     })
     try {
       let seed = cfr.decryptSeed(wallet, password)
-      return cfr.deriveWallet(seed, testnet)
+      return cfr.deriveWallet(seed)
     } catch (err) {
       console.log(red('Incorrect password'))
     }
   }
 }
 
-async function createWallet (path, testnet) {
+async function createWallet (path) {
   console.log(
     `We will now create a Cosmos wallet and a password.\n`,
     red(`WARNING: If you lose your password, you will lose access to your Atoms. There is no way to recover or reset your password. Write down your password and DO NOT LOSE IT!`)
@@ -71,7 +70,7 @@ async function createWallet (path, testnet) {
 
   let password = await passwordCreatePrompt()
   let seed = cfr.generateSeed()
-  let wallet = cfr.deriveWallet(seed, testnet)
+  let wallet = cfr.deriveWallet(seed)
   let encryptSpinner = createSpinner('Encrypting wallet...').start()
   let encryptedSeed = cfr.encryptSeed(seed, password)
   encryptSpinner.succeed('Encrypted wallet')
@@ -108,10 +107,10 @@ async function passwordCreatePrompt () {
   return password
 }
 
-function waitForTx (address, testnet) {
+function waitForTx (address) {
   console.log(`
 ${bold('Exchange rate:')} 1 BTC : ${cfr.bitcoin.ATOMS_PER_BTC} ATOM
-${bold('Minimum amount:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
+${bold('Minimum donation:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
 
 Your intermediate Bitcoin address is:
 ${cyan(address)}
@@ -122,20 +121,20 @@ change your mind.
   `)
   let spinner = createSpinner('Waiting for a transaction...').start()
   return new Promise((resolve, reject) => {
-    cfr.bitcoin.waitForTx(address, { testnet }, (err, tx) => {
+    cfr.bitcoin.waitForPayment(address, (err, inputs) => {
       if (err) return reject(err)
-      spinner.succeed('Received transaction:\n' + cyan(tx.tx.getId()))
-      resolve(tx)
+      spinner.succeed('Got payment of ' + cyan(`${inputs.amount / 1e8} BTC`))
+      resolve(inputs)
     })
   })
 }
 ``
-async function finalize (wallet, tx, testnet) {
-  let finalTx = cfr.bitcoin.createFinalTx(wallet, tx, testnet)
+async function finalize (wallet, inputs) {
+  let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs)
   console.log(`
 Ready to finalize contribution:
-  ${bold('Paying:')} ${finalTx.paidAmount / 1e8} BTC
-  ${bold('Transaction fee:')} ${finalTx.feeAmount / 1e8} BTC
+  ${bold('Donating:')} ${finalTx.paidAmount / 1e8} BTC
+  ${bold('Bitcoin transaction fee:')} ${finalTx.feeAmount / 1e8} BTC
   ${bold('Receiving:')} ${finalTx.atomAmount} ATOM
   ${bold('Cosmos address:')} ${wallet.addresses.cosmos}
   `)
@@ -163,13 +162,15 @@ TODO: links
   if (!confirm) return
 
   let spinner = createSpinner('Broadcasting transaction...')
-  let txid = await new Promise((resolve, reject) => {
-    cfr.bitcoin.pushTx(finalTx.tx, { testnet }, (err, txid) => {
+  await new Promise((resolve, reject) => {
+    cfr.bitcoin.pushTx(finalTx.tx, (err) => {
+      console.log(err)
       if (err) return reject(err)
-      resolve(txid)
+      resolve()
     })
   })
   spinner.succeed('Transaction sent!')
+  let txid = finalTx.tx.getId()
   console.log('Bitcoin TXID: ' + cyan(txid))
   console.log('Thank you for participating in the Cosmos fundraiser!')
 }
