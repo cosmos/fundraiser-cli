@@ -21,8 +21,8 @@ Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
 `
 Welcome to the Cosmos Fundraiser!
 
-Let's get started so you can donate and receive Atoms, the tokens used
-to participate in the Cosmos network.
+Thank you for your interest in donating funds for the development of The Cosmos Network. 
+Let's get started!
 `)
 
 async function main () {
@@ -34,7 +34,7 @@ async function main () {
 
 async function createOrLoadWallet (path) {
   try {
-    // test if we wallet exists and we have access
+    // test if the wallet exists and we have access
     fs.accessSync(path)
     console.log(`Found existing wallet file: ${path}`)
     return await loadWallet(path)
@@ -64,7 +64,9 @@ async function loadWallet (path) {
 
 async function createWallet (path) {
   console.log(
-    `We will now create a Cosmos wallet and a password.\n`,
+    `It looks like you have not yet created a Cosmos wallet.\n`,
+    `Let's create one, and encrypt it using a password.\n`,
+    `The password must be long and difficult to guess, otherwise someone who gets control of your wallet may be able to decrypt it and steal your Atoms!\n`,
     red(`WARNING: If you lose your password, you will lose access to your Atoms. There is no way to recover or reset your password. Write down your password and DO NOT LOSE IT!`)
   )
 
