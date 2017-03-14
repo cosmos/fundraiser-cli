@@ -6,7 +6,10 @@ const fs = require('fs')
 const { bold, cyan, red } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
+const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
+const sendBackupEmail = promisify(cfr.sendEmail)
+cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
 
 console.log(cyan(`
  .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
@@ -82,6 +85,11 @@ async function createWallet (path) {
   fs.writeFileSync(path, walletBytes)
   saveSpinner.succeed(`Saved wallet to ${path}`)
 
+  let emailAddress = await emailAddressPrompt()
+  let emailSpinner = createSpinner(`Sending copy of wallet to ${emailAddress}...`).start()
+  await sendBackupEmail(emailAddress, walletBytes)
+  emailSpinner.succeed(`Sent copy of wallet to ${emailAddress}`)
+
   return wallet
 }
 
@@ -109,7 +117,24 @@ async function passwordCreatePrompt () {
   return password
 }
 
-function waitForTx (address) {
+async function emailAddressPrompt () {
+  do {
+    var { email } = await prompt({
+      name: 'email',
+      message: 'Enter your email address to receive a copy of your wallet:'
+    })
+    var { confirm } = await prompt({
+      name: 'confirm',
+      message: 'Enter email address again to confirm:'
+    })
+    if (confirm !== email) {
+      console.log(red('Email addresses do not match.'))
+    }
+  } while (confirm !== email)
+  return email
+}
+
+async function waitForTx (address) {
   console.log(`
 ${bold('Exchange rate:')} 1 BTC : ${cfr.bitcoin.ATOMS_PER_BTC} ATOM
 ${bold('Minimum donation:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
@@ -122,13 +147,9 @@ This address is owned by you, so you can get the coins back if you
 change your mind.
   `)
   let spinner = createSpinner('Waiting for a transaction...').start()
-  return new Promise((resolve, reject) => {
-    cfr.bitcoin.waitForPayment(address, (err, inputs) => {
-      if (err) return reject(err)
-      spinner.succeed('Got payment of ' + cyan(`${inputs.amount / 1e8} BTC`))
-      resolve(inputs)
-    })
-  })
+  let inputs = await cfr.bitcoin.waitForPayment(address)
+  spinner.succeed('Got payment of ' + cyan(`${inputs.amount / 1e8} BTC`))
+  return inputs
 }
 ``
 async function finalize (wallet, inputs) {
