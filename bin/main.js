@@ -10,6 +10,8 @@ const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
 const sendBackupEmail = promisify(cfr.sendEmail)
 cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
+cfr.decryptSeed = promisify(cfr.decryptSeed)
+cfr.encryptSeed = promisify(cfr.encryptSeed)
 
 console.log(cyan(`
  .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
@@ -24,7 +26,7 @@ Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
 `
 Welcome to the Cosmos Fundraiser!
 
-Thank you for your interest in donating funds for the development of The Cosmos Network. 
+Thank you for your interest in donating funds for the development of The Cosmos Network.
 Let's get started!
 `)
 
@@ -57,7 +59,7 @@ async function loadWallet (path) {
       message: 'Enter your wallet password:'
     })
     try {
-      let seed = cfr.decryptSeed(wallet, password)
+      let seed = await cfr.decryptSeed(wallet, password)
       return cfr.deriveWallet(seed)
     } catch (err) {
       console.log(red('Incorrect password'))
@@ -77,7 +79,7 @@ async function createWallet (path) {
   let seed = cfr.generateSeed()
   let wallet = cfr.deriveWallet(seed)
   let encryptSpinner = createSpinner('Encrypting wallet...').start()
-  let encryptedSeed = cfr.encryptSeed(seed, password)
+  let encryptedSeed = await cfr.encryptSeed(seed, password)
   encryptSpinner.succeed('Encrypted wallet')
 
   let saveSpinner = createSpinner(`Saving wallet...`).start()
