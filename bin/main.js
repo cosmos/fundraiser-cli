@@ -33,8 +33,13 @@ Let's get started!
 async function main () {
   let walletPath = process.argv[2] || './cosmos_fundraiser.wallet'
   let wallet = await createOrLoadWallet(walletPath)
-  let tx = await waitForTx(wallet.addresses.bitcoin)
-  await finalize(wallet, tx)
+  let currency = await promptForCurrency()
+  if (currency === 'BTC') {
+    let tx = await waitForBtcTx(wallet.addresses.bitcoin)
+    await finalizeBtcDonation(wallet, tx)
+  } else {
+    await makeEthDonation(wallet)
+  }
 }
 
 async function createOrLoadWallet (path) {
@@ -136,7 +141,17 @@ async function emailAddressPrompt () {
   return email
 }
 
-async function waitForTx (address) {
+async function promptForCurrency () {
+  let { currency } = await prompt({
+    type: 'list',
+    choices: [ 'BTC', 'ETH' ],
+    name: 'currency',
+    message: 'Which currency will you make your donation in?'
+  })
+  return currency
+}
+
+async function waitForBtcTx (address) {
   console.log(`
 ${bold('Exchange rate:')} 1 BTC : ${cfr.bitcoin.ATOMS_PER_BTC} ATOM
 ${bold('Minimum donation:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
@@ -144,7 +159,7 @@ ${bold('Minimum donation:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
 Your intermediate Bitcoin address is:
 ${cyan(address)}
 
-Send coins to this address to continue with your contribution.
+Send BTC to this address to continue with your contribution.
 This address is owned by you, so you can get the coins back if you
 change your mind.
   `)
@@ -154,7 +169,7 @@ change your mind.
   return inputs
 }
 ``
-async function finalize (wallet, inputs) {
+async function finalizeBtcDonation (wallet, inputs) {
   let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs)
   console.log(`
 Ready to finalize contribution:
@@ -198,6 +213,24 @@ TODO: links
   let txid = finalTx.tx.getId()
   console.log('Bitcoin TXID: ' + cyan(txid))
   console.log('Thank you for participating in the Cosmos fundraiser!')
+}
+
+async function makeEthDonation (wallet) {
+  let tx = cfr.ethereum.getTransactionData(
+    `0x${wallet.addresses.cosmos}`,
+    wallet.addresses.ethereum
+  )
+  console.log(`
+${bold('Exchange rate:')} 1 ETH : ${cfr.ethereum.ATOMS_PER_ETH} ATOM
+
+Here's your donation transaction:
+${cyan(tx)}
+
+To make your donation, copy and paste this transaction into a wallet
+such as MyEtherWallet. Your Cosmos wallet will be credited with Atoms.
+
+Thank you for participating in the Cosmos Fundraiser!
+  `)
 }
 
 main().catch((err) => console.error(red(`An error occurred. Please ask for help.\n${err.stack}`)))
