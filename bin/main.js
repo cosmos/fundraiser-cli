@@ -3,15 +3,17 @@
 'use strict'
 
 const fs = require('fs')
-const { bold, cyan, red } = require('chalk')
+const { bold, cyan, red} = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
+const { FUNDRAISER_CONTRACT } = cfr.ethereum
 const sendBackupEmail = promisify(cfr.sendEmail)
 cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
 cfr.decryptSeed = promisify(cfr.decryptSeed)
 cfr.encryptSeed = promisify(cfr.encryptSeed)
+cfr.ethereum.fetchAtomRate = promisify(cfr.ethereum.fetchAtomRate)
 
 console.log(cyan(`
  .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
@@ -77,7 +79,12 @@ async function createWallet (path) {
     `It looks like you have not yet created a Cosmos wallet.\n`,
     `Let's create one, and encrypt it using a password.\n`,
     `The password must be long and difficult to guess, otherwise someone who gets control of your wallet may be able to decrypt it and steal your Atoms!\n`,
-    red(`WARNING: If you lose your password, you will lose access to your Atoms. There is no way to recover or reset your password. Write down your password and DO NOT LOSE IT!`)
+    red(`WARNING: If you lose your password, you will lose access to your Atoms.\n`),
+    cyan(`WARNING: There is no way to recover or reset your password.\n`),
+    red(`WARNING: Write down your password and DO NOT LOSE IT!\n`),
+    cyan(`WARNING: DO NOT LOSE YOUR PASSWORD!\n`),
+    red(`WARNING: DO NOT LOSE YOUR PASSWORD!\n`),
+    cyan(`WARNING: DO NOT LOSE YOUR PASSWORD!\n`)
   )
 
   let password = await passwordCreatePrompt()
@@ -168,14 +175,14 @@ change your mind.
   spinner.succeed('Got payment of ' + cyan(`${inputs.amount / 1e8} BTC`))
   return inputs
 }
-``
+
 async function finalizeBtcDonation (wallet, inputs) {
   let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs)
   console.log(`
 Ready to finalize contribution:
   ${bold('Donating:')} ${finalTx.paidAmount / 1e8} BTC
   ${bold('Bitcoin transaction fee:')} ${finalTx.feeAmount / 1e8} BTC
-  ${bold('Receiving:')} ${finalTx.atomAmount} ATOM
+  ${bold('Atom Equivalent:')} ${finalTx.atomAmount} ATOM
   ${bold('Cosmos address:')} ${wallet.addresses.cosmos}
   `)
 
@@ -216,18 +223,23 @@ TODO: links
 }
 
 async function makeEthDonation (wallet) {
-  let tx = cfr.ethereum.getTransactionData(
+  let tx = cfr.ethereum.getTransaction(
     `0x${wallet.addresses.cosmos}`,
     wallet.addresses.ethereum
   )
+  let ethRate = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
   console.log(`
-${bold('Exchange rate:')} 1 ETH : ${cfr.ethereum.ATOMS_PER_ETH} ATOM
+  ${bold('Exchange rate:')} 1 ETH : ${ethRate} ATOM
+  ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
+  ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos}
 
 Here's your donation transaction:
-${cyan(tx)}
+${cyan('  ' + JSON.stringify(tx, null, '    ').replace('}', '  }'))}
 
-To make your donation, copy and paste this transaction into a wallet
-such as MyEtherWallet. Your Cosmos wallet will be credited with Atoms.
+To make your donation, copy and paste this information into a wallet
+such as MyEtherWallet or Mist. Be sure to include an amount of ETH to
+donate! Your Cosmos address is included in the data, and the donation
+will be recorded for that address in the smart contract.
 
 Thank you for participating in the Cosmos Fundraiser!
   `)
