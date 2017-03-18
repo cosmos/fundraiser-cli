@@ -8,10 +8,12 @@ const { prompt } = require('inquirer')
 const createSpinner = require('ora')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
+const { FUNDRAISER_CONTRACT } = cfr.ethereum
 const sendBackupEmail = promisify(cfr.sendEmail)
 cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
 cfr.decryptSeed = promisify(cfr.decryptSeed)
 cfr.encryptSeed = promisify(cfr.encryptSeed)
+cfr.ethereum.fetchAtomRate = promisify(cfr.ethereum.fetchAtomRate)
 
 console.log(cyan(`
  .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
@@ -225,17 +227,19 @@ async function makeEthDonation (wallet) {
     `0x${wallet.addresses.cosmos}`,
     wallet.addresses.ethereum
   )
+  let ethRate = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
   console.log(`
-  ${bold('Exchange rate:')} 1 ETH : ${cfr.ethereum.ATOMS_PER_ETH} ATOM
-  ${bold('Cosmos address:')} ${wallet.addresses.cosmos}
+  ${bold('Exchange rate:')} 1 ETH : ${ethRate} ATOM
+  ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
+  ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos}
 
 Here's your donation transaction:
-${cyan(JSON.stringify(tx, null, "\t"))}
+${cyan('  ' + JSON.stringify(tx, null, '    ').replace('}', '  }'))}
 
-To make your donation, copy and paste this information into a wallet such 
-as MyEtherWallet or Mist. Be sure to include an amount of ETH to donate!
-Your Cosmos address is included in the data, and the donation will be recorded 
-for that address in the smart contract.
+To make your donation, copy and paste this information into a wallet
+such as MyEtherWallet or Mist. Be sure to include an amount of ETH to
+donate! Your Cosmos address is included in the data, and the donation
+will be recorded for that address in the smart contract.
 
 Thank you for participating in the Cosmos Fundraiser!
   `)
