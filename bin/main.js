@@ -173,7 +173,7 @@ change your mind.
   spinner.succeed('Got payment of ' + cyan(`${inputs.amount / 1e8} BTC`))
   return inputs
 }
-``
+
 async function finalizeBtcDonation (wallet, inputs) {
   let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs)
   console.log(`
