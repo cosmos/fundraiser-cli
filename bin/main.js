@@ -3,13 +3,15 @@
 'use strict'
 
 const fs = require('fs')
-const { bold, cyan, red} = require('chalk')
+const { bold, cyan, red } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
 const { FUNDRAISER_CONTRACT } = cfr.ethereum
 const sendBackupEmail = promisify(cfr.sendEmail)
+cfr.bitcoin.pushTx = promisify(cfr.bitcoin.pushTx)
+cfr.bitcoin.fetchFeeRate = promisify(cfr.bitcoin.fetchFeeRate)
 cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
 cfr.decryptSeed = promisify(cfr.decryptSeed)
 cfr.encryptSeed = promisify(cfr.encryptSeed)
@@ -177,7 +179,10 @@ change your mind.
 }
 
 async function finalizeBtcDonation (wallet, inputs) {
-  let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs)
+  let feeSpinner = createSpinner('Fetching BTC transaction fee rate...')
+  let feeRate = await cfr.bitcoin.fetchFeeRate()
+  feeSpinner.stop()
+  let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs, feeRate)
   console.log(`
 Ready to finalize contribution:
   ${bold('Donating:')} ${finalTx.paidAmount / 1e8} BTC
@@ -209,13 +214,7 @@ TODO: links
   if (!confirm) return
 
   let spinner = createSpinner('Broadcasting transaction...')
-  await new Promise((resolve, reject) => {
-    cfr.bitcoin.pushTx(finalTx.tx, (err) => {
-      console.log(err)
-      if (err) return reject(err)
-      resolve()
-    })
-  })
+  await cfr.bitcoin.pushTx(finalTx.tx)
   spinner.succeed('Transaction sent!')
   let txid = finalTx.tx.getId()
   console.log('Bitcoin TXID: ' + cyan(txid))
@@ -227,7 +226,9 @@ async function makeEthDonation (wallet) {
     `0x${wallet.addresses.cosmos}`,
     wallet.addresses.ethereum
   )
+  let spinner = createSpinner('Fetching ATOM/ETH exchange rate...')
   let ethRate = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
+  spinner.stop()
   console.log(`
   ${bold('Exchange rate:')} 1 ETH : ${ethRate} ATOM
   ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
