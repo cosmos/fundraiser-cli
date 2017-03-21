@@ -79,6 +79,10 @@ Usage: cosmos-fundraiser constructandsigntx <pathToWalletFile> <pathToUtxosFile>
     console.log(tx.toHex())
   },
 
+  async broadcasttx (txHex) {
+    await cfr.bitcoin.pushTx(txHex)
+  },
+
   async ethtx (walletPath) {
     if (!walletPath) {
       fail(`Usage: cosmos-fundraiser ethtx <pathToWalletFile>`)
