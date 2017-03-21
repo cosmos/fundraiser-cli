@@ -15,24 +15,24 @@ cfr.decryptSeed = promisify(cfr.decryptSeed)
 cfr.encryptSeed = promisify(cfr.encryptSeed)
 cfr.ethereum.fetchAtomRate = promisify(cfr.ethereum.fetchAtomRate)
 
-console.log(cyan(`
- .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
-d88P  Y88b d88P" "Y88b d88P  Y88b 8888b   d8888 d88P" "Y88b d88P  Y88b
-888    888 888     888 Y88b.      88888b.d88888 888     888 Y88b.
-888        888     888  "Y888b.   888Y88888P888 888     888  "Y888b.
-888        888     888     "Y88b. 888 Y888P 888 888     888     "Y88b.
-888    888 888     888       "888 888  Y8P  888 888     888       "888
-Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
- "Y8888P"   "Y88888P"   "Y8888P"  888       888  "Y88888P"   "Y8888P"
-`),
-`
-Welcome to the Cosmos Fundraiser!
-
-Thank you for your interest in donating funds for the development of The Cosmos Network.
-Let's get started!
-`)
-
 async function main () {
+  console.log(cyan(`
+   .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
+  d88P  Y88b d88P" "Y88b d88P  Y88b 8888b   d8888 d88P" "Y88b d88P  Y88b
+  888    888 888     888 Y88b.      88888b.d88888 888     888 Y88b.
+  888        888     888  "Y888b.   888Y88888P888 888     888  "Y888b.
+  888        888     888     "Y88b. 888 Y888P 888 888     888     "Y88b.
+  888    888 888     888       "888 888  Y8P  888 888     888       "888
+  Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
+   "Y8888P"   "Y88888P"   "Y8888P"  888       888  "Y88888P"   "Y8888P"
+  `),
+  `
+  Welcome to the Cosmos Fundraiser!
+
+  Thank you for your interest in donating funds for the development of The Cosmos Network.
+  Let's get started!
+  `)
+  
   let walletPath = './cosmos_fundraiser.wallet'
   let wallet = await createOrLoadWallet(walletPath)
   let currency = await promptForCurrency()
