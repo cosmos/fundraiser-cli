@@ -3,13 +3,8 @@
 const { readFileSync } = require('fs')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
-const { FUNDRAISER_CONTRACT } = cfr.ethereum
 cfr.bitcoin.pushTx = promisify(cfr.bitcoin.pushTx)
-cfr.bitcoin.fetchFeeRate = promisify(cfr.bitcoin.fetchFeeRate)
 cfr.bitcoin.fetchUtxos = promisify(cfr.bitcoin.fetchUtxos)
-cfr.decryptSeed = promisify(cfr.decryptSeed)
-cfr.encryptSeed = promisify(cfr.encryptSeed)
-cfr.ethereum.fetchAtomRate = promisify(cfr.ethereum.fetchAtomRate)
 
 function fail (message) {
   console.log(message)
