@@ -1,18 +1,14 @@
 'use strict'
 
-const fs = require('fs')
 const { bold, cyan, red, green } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
 const { FUNDRAISER_CONTRACT } = cfr.ethereum
-const sendBackupEmail = promisify(cfr.sendEmail)
 cfr.bitcoin.pushTx = promisify(cfr.bitcoin.pushTx)
 cfr.bitcoin.fetchFeeRate = promisify(cfr.bitcoin.fetchFeeRate)
 cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
-cfr.decryptSeed = promisify(cfr.decryptSeed)
-cfr.encryptSeed = promisify(cfr.encryptSeed)
 cfr.ethereum.fetchAtomRate = promisify(cfr.ethereum.fetchAtomRate)
 
 async function main () {
