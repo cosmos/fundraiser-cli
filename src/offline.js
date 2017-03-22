@@ -11,12 +11,13 @@ function fail (message) {
   process.exit(1)
 }
 
-function readWallet (path) {
-  if (!path) {
-    throw Error('Must specify wallet path')
-  }
-  let seed = readFileSync(path)
-  // TODO: don't read as hex once we merge HD wallets
+async function readWallet (path) {
+  let seed = await new Promise((resolve, reject) => {
+    let data = []
+    process.stdin.on('data', (chunk) => data.push(chunk))
+    process.stdin.once('end', () => resolve(Buffer.concat(data)))
+    process.stdin.once('error', (err) => reject(err))
+  })
   seed = Buffer(seed.toString().trim(), 'hex')
   return cfr.deriveWallet(seed)
 }
@@ -36,11 +37,11 @@ const commands = {
     console.log(seed)
   },
 
-  async btcaddress (walletPath) {
-    if (!walletPath) {
-      fail(`Usage: cosmos-fundraiser btcaddress <pathToWalletFile>`)
+  async btcaddress () {
+    if (process.stdin.isTTY) {
+      fail(`Usage: cosmos-fundraiser btcaddress < walletFile`)
     }
-    let wallet = readWallet(walletPath)
+    let wallet = await readWallet()
     console.log(wallet.addresses.bitcoin)
   },
 
@@ -60,14 +61,16 @@ const commands = {
     console.log(JSON.stringify(utxos, null, '  '))
   },
 
-  async constructandsigntx (walletPath, utxosPath, feeRate = 400) {
-    if (!walletPath || !utxosPath) {
+  async constructandsigntx (utxosPath, feeRate = 400) {
+    if (process.stdin.isTTY || !utxosPath) {
       fail(`
-Usage: cosmos-fundraiser constructandsigntx <pathToWalletFile> <pathToUtxosFile> [feeRate]
+Usage:
+  cosmos-fundraiser constructandsigntx <utxosFile> [feeRate] < walletFile
+
   'feeRate' is used to calculate the Bitcoin transaction fee,
-  measured in satohis per byte`)
+  measured in satoshis per byte`)
     }
-    let wallet = readWallet(walletPath)
+    let wallet = await readWallet()
     let utxosJson = readFileSync(utxosPath).toString()
     let utxos = JSON.parse(utxosJson)
     let tx = cfr.bitcoin.createFinalTx(wallet, utxos, feeRate).tx
@@ -78,11 +81,11 @@ Usage: cosmos-fundraiser constructandsigntx <pathToWalletFile> <pathToUtxosFile>
     await cfr.bitcoin.pushTx(txHex)
   },
 
-  async ethtx (walletPath) {
-    if (!walletPath) {
-      fail(`Usage: cosmos-fundraiser ethtx <pathToWalletFile>`)
+  async ethtx () {
+    if (process.stdin.isTTY) {
+      fail(`Usage: cosmos-fundraiser ethtx < walletFile`)
     }
-    let wallet = readWallet(walletPath)
+    let wallet = await readWallet()
     let tx = cfr.ethereum.getTransaction(
       `0x${wallet.addresses.cosmos}`,
       wallet.addresses.ethereum
