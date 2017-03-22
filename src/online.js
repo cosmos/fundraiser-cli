@@ -1,7 +1,7 @@
 'use strict'
 
 const fs = require('fs')
-const { bold, cyan, red } = require('chalk')
+const { bold, cyan, red, green } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
 const promisify = require('bluebird').promisify
@@ -17,24 +17,23 @@ cfr.ethereum.fetchAtomRate = promisify(cfr.ethereum.fetchAtomRate)
 
 async function main () {
   console.log(cyan(`
-   .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
-  d88P  Y88b d88P" "Y88b d88P  Y88b 8888b   d8888 d88P" "Y88b d88P  Y88b
-  888    888 888     888 Y88b.      88888b.d88888 888     888 Y88b.
-  888        888     888  "Y888b.   888Y88888P888 888     888  "Y888b.
-  888        888     888     "Y88b. 888 Y888P 888 888     888     "Y88b.
-  888    888 888     888       "888 888  Y8P  888 888     888       "888
-  Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
-   "Y8888P"   "Y88888P"   "Y8888P"  888       888  "Y88888P"   "Y8888P"
-  `),
-  `
-  Welcome to the Cosmos Fundraiser!
+ .d8888b.   .d88888b.   .d8888b.  888b     d888  .d88888b.   .d8888b.
+d88P  Y88b d88P" "Y88b d88P  Y88b 8888b   d8888 d88P" "Y88b d88P  Y88b
+888    888 888     888 Y88b.      88888b.d88888 888     888 Y88b.
+888        888     888  "Y888b.   888Y88888P888 888     888  "Y888b.
+888        888     888     "Y88b. 888 Y888P 888 888     888     "Y88b.
+888    888 888     888       "888 888  Y8P  888 888     888       "888
+Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
+ "Y8888P"   "Y88888P"   "Y8888P"  888       888  "Y88888P"   "Y8888P"
+`),
+`
+Welcome to the Cosmos Fundraiser!
 
-  Thank you for your interest in donating funds for the development of The Cosmos Network.
-  Let's get started!
+Thank you for your interest in donating funds for the development of The Cosmos Network.
+Let's get started!
   `)
-  
-  let walletPath = './cosmos_fundraiser.wallet'
-  let wallet = await createOrLoadWallet(walletPath)
+
+  let wallet = await createOrInputWallet()
   let currency = await promptForCurrency()
   if (currency === 'BTC') {
     let tx = await waitForBtcTx(wallet.addresses.bitcoin)
@@ -44,108 +43,50 @@ async function main () {
   }
 }
 
-async function createOrLoadWallet (path) {
-  try {
-    // test if the wallet exists and we have access
-    fs.accessSync(path)
-    console.log(`Found existing wallet file: ${path}`)
-    return await loadWallet(path)
-  } catch (err) {
-    if (err.code !== 'ENOENT') throw err
-    return await createWallet(path)
+async function createOrInputWallet () {
+  let choices = [ 'Generate wallet', 'Input existing wallet' ]
+  let { action } = await prompt({
+    type: 'list',
+    choices,
+    name: 'action',
+    message: 'Generate a new wallet, or use an existing one?'
+  })
+  let generate = choices[0]
+  if (action === generate) {
+    return await createWallet()
+  } else {
+    return await inputWallet()
   }
 }
 
-async function loadWallet (path) {
-  let walletBytes = fs.readFileSync(path)
-  let wallet = cfr.decodeWallet(walletBytes)
-  while (true) {
-    let { password } = await prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Enter your wallet password:'
-    })
-    try {
-      let seed = await cfr.decryptSeed(wallet, password)
-      return cfr.deriveWallet(seed)
-    } catch (err) {
-      console.log(red('Incorrect password'))
-    }
-  }
-}
-
-async function createWallet (path) {
-  console.log(
-    `It looks like you have not yet created a Cosmos wallet.\n`,
-    `Let's create one, and encrypt it using a password.\n`,
-    `The password must be long and difficult to guess, otherwise someone who gets control of your wallet may be able to decrypt it and steal your Atoms!\n`,
-    red(`WARNING: If you lose your password, you will lose access to your Atoms.\n`),
-    cyan(`WARNING: There is no way to recover or reset your password.\n`),
-    red(`WARNING: Write down your password and DO NOT LOSE IT!\n`),
-    cyan(`WARNING: DO NOT LOSE YOUR PASSWORD!\n`),
-    red(`WARNING: DO NOT LOSE YOUR PASSWORD!\n`),
-    cyan(`WARNING: DO NOT LOSE YOUR PASSWORD!\n`)
-  )
-
-  let password = await passwordCreatePrompt()
+async function createWallet () {
   let seed = cfr.generateSeed()
-  let wallet = cfr.deriveWallet(seed)
-  let encryptSpinner = createSpinner('Encrypting wallet...').start()
-  let encryptedSeed = await cfr.encryptSeed(seed, password)
-  encryptSpinner.succeed('Encrypted wallet')
 
-  let saveSpinner = createSpinner(`Saving wallet...`).start()
-  let walletBytes = cfr.encodeWallet(encryptedSeed)
-  fs.writeFileSync(path, walletBytes)
-  saveSpinner.succeed(`Saved wallet to ${path}`)
+  console.log(`
+Let's generate your Cosmos wallet. You will need this in the future to
+access your Atoms.
 
-  let emailAddress = await emailAddressPrompt()
-  let emailSpinner = createSpinner(`Sending copy of wallet to ${emailAddress}...`).start()
-  await sendBackupEmail(emailAddress, walletBytes)
-  emailSpinner.succeed(`Sent copy of wallet to ${emailAddress}`)
+Here is your wallet phrase:
+${green(seed.toString('hex'))}
 
-  return wallet
+${red(`KEEP YOUR WALLET SECRET AND DO NOT LOSE IT!`)}
+${cyan(`WARNING: If you lose your wallet, you will lose access to your Atoms.`)}
+${red(`WARNING: If someone gets your wallet phrase, they can take your Atoms.`)}
+${cyan(`WARNING: Write down your wallet phrase and DO NOT LOSE IT!`)}
+${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+${cyan(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+  \n`)
+
+  return cfr.deriveWallet(seed)
 }
 
-async function passwordCreatePrompt () {
-  do {
-    var { password } = await prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Choose a password:',
-      validate (password) {
-        if (password.length < 12) return 'Must be at least 12 characters'
-        // TODO: more thorough password safety rules
-        return true
-      }
-    })
-    var { confirm } = await prompt({
-      type: 'password',
-      name: 'confirm',
-      message: 'Enter password again to confirm:'
-    })
-    if (confirm !== password) {
-      console.log(red('Passwords do not match.'))
-    }
-  } while (confirm !== password)
-  return password
-}
-
-async function emailAddressPrompt () {
-  do {
-    var { email } = await prompt({
-      name: 'email',
-      message: 'Enter your email address to receive a copy of your wallet:'
-    })
-    var { confirm } = await prompt({
-      name: 'confirm',
-      message: 'Enter email address again to confirm:'
-    })
-    if (confirm !== email) {
-      console.log(red('Email addresses do not match.'))
-    }
-  } while (confirm !== email)
-  return email
+async function inputWallet () {
+  let { seed } = await prompt({
+    name: 'seed',
+    message: 'Please enter your 12-word wallet phrase:'
+  })
+  return cfr.deriveWallet(seed)
 }
 
 async function promptForCurrency () {
@@ -180,7 +121,7 @@ async function finalizeBtcDonation (wallet, inputs) {
   let feeSpinner = createSpinner('Fetching BTC transaction fee rate...')
   let feeRate = await cfr.bitcoin.fetchFeeRate()
   feeSpinner.stop()
-  let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs, feeRate)
+  let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs.utxos, feeRate)
   console.log(`
 Ready to finalize contribution:
   ${bold('Donating:')} ${finalTx.paidAmount / 1e8} BTC
