@@ -153,7 +153,7 @@ TODO: links
   if (!confirm) return
 
   let spinner = createSpinner('Broadcasting transaction...')
-  await cfr.bitcoin.pushTx(finalTx.tx)
+  await cfr.bitcoin.pushTx(finalTx.tx.toHex())
   spinner.succeed('Transaction sent!')
   let txid = finalTx.tx.getId()
   console.log('Bitcoin TXID: ' + cyan(txid))
