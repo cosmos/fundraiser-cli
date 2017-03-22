@@ -3,6 +3,7 @@
 const { readFileSync } = require('fs')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
+const readline = require('readline')
 cfr.bitcoin.pushTx = promisify(cfr.bitcoin.pushTx)
 cfr.bitcoin.fetchUtxos = promisify(cfr.bitcoin.fetchUtxos)
 
@@ -11,14 +12,26 @@ function fail (message) {
   process.exit(1)
 }
 
-async function readWallet (path) {
-  let seed = await new Promise((resolve, reject) => {
-    let data = []
-    process.stdin.on('data', (chunk) => data.push(chunk))
-    process.stdin.once('end', () => resolve(Buffer.concat(data)))
-    process.stdin.once('error', (err) => reject(err))
-  })
-  seed = Buffer(seed.toString().trim(), 'hex')
+async function readWallet () {
+  let seed
+  if (process.stdin.isTTY) {
+    process.stdout.write("Please enter the seed:\n> ")
+    let rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    })
+    seed = await new Promise((resolve) => rl.once('line', resolve))
+    rl.close()
+  } else {
+    seed = await new Promise((resolve, reject) => {
+      let data = []
+      process.stdin.on('data', (chunk) => data.push(chunk))
+      process.stdin.once('end', () => resolve(Buffer.concat(data)))
+      process.stdin.once('error', (err) => reject(err))
+    })
+    seed = seed.toString('utf8').trim()
+  }
   return cfr.deriveWallet(seed)
 }
 
@@ -32,17 +45,18 @@ async function runCommand (commandName, args) {
 
 const commands = {
   async genwallet () {
-    // TODO: don't convert to hex once we merge in HD wallets (seed will just be a string)
-    let seed = cfr.generateSeed().toString('hex')
+    let seed = cfr.generateSeed()
     console.log(seed)
   },
 
   async btcaddress () {
-    if (process.stdin.isTTY) {
-      fail(`Usage: cosmos-fundraiser btcaddress < walletFile`)
+    try {
+      let wallet = await readWallet()
+      console.log(wallet.addresses.bitcoin)
+    } catch (err) {
+      console.log("error:", err)
+      fail(`Usage: cosmos-fundraiser btcaddress < walletSeed`)
     }
-    let wallet = await readWallet()
-    console.log(wallet.addresses.bitcoin)
   },
 
   async getutxos (btcAddress) {
@@ -65,7 +79,7 @@ const commands = {
     if (process.stdin.isTTY || !utxosPath) {
       fail(`
 Usage:
-  cosmos-fundraiser constructandsigntx <utxosFile> [feeRate] < walletFile
+  cosmos-fundraiser constructandsigntx <utxosFile> [feeRate] < walletSeed
 
   'feeRate' is used to calculate the Bitcoin transaction fee,
   measured in satoshis per byte`)
@@ -83,7 +97,7 @@ Usage:
 
   async ethtx () {
     if (process.stdin.isTTY) {
-      fail(`Usage: cosmos-fundraiser ethtx < walletFile`)
+      fail(`Usage: cosmos-fundraiser ethtx < walletSeed`)
     }
     let wallet = await readWallet()
     let tx = cfr.ethereum.getTransaction(
