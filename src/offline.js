@@ -96,9 +96,6 @@ Usage:
   },
 
   async ethtx () {
-    if (process.stdin.isTTY) {
-      fail(`Usage: cosmos-fundraiser ethtx < walletSeed`)
-    }
     let wallet = await readWallet()
     let tx = cfr.ethereum.getTransaction(
       `0x${wallet.addresses.cosmos}`,
