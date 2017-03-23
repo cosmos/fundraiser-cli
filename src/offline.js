@@ -72,7 +72,11 @@ Usage:
     }
     let { utxos } = await cfr.bitcoin.fetchUtxos(btcAddress)
     if (utxos.length === 0) {
-      fail('Address has no unspent outputs')
+      fail(`Address has no unspent outputs
+
+Please send some BTC to your intermediate address, then run this
+command again.
+      `)
     }
     try {
       let tx = cfr.bitcoin.createFinalTx(utxos, feeRate).tx

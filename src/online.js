@@ -117,7 +117,7 @@ async function finalizeBtcDonation (wallet, inputs) {
   let feeSpinner = createSpinner('Fetching BTC transaction fee rate...')
   let feeRate = await cfr.bitcoin.fetchFeeRate()
   feeSpinner.stop()
-  let finalTx = cfr.bitcoin.createFinalTx(wallet, inputs.utxos, feeRate)
+  let finalTx = cfr.bitcoin.createFinalTx(inputs.utxos, feeRate)
   console.log(`
 Ready to finalize contribution:
   ${bold('Donating:')} ${finalTx.paidAmount / 1e8} BTC
@@ -148,10 +148,12 @@ TODO: links
   })
   if (!confirm) return
 
+  let signedTx = cfr.bitcoin.signFinalTx(wallet, finalTx.tx)
+
   let spinner = createSpinner('Broadcasting transaction...')
-  await cfr.bitcoin.pushTx(finalTx.tx.toHex())
+  await cfr.bitcoin.pushTx(signedTx.toHex())
   spinner.succeed('Transaction sent!')
-  let txid = finalTx.tx.getId()
+  let txid = signedTx.getId()
   console.log('Bitcoin TXID: ' + cyan(txid))
   console.log('Thank you for participating in the Cosmos fundraiser!')
 }
