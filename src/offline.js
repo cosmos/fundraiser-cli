@@ -45,7 +45,7 @@ async function runCommand (commandName, args) {
 
 const commands = {
   async genwallet () {
-    let seed = cfr.generateSeed()
+    let seed = cfr.generateMnemonic()
     console.log(seed)
   },
 
