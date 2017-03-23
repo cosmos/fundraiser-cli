@@ -56,21 +56,19 @@ async function createOrInputWallet () {
 }
 
 async function createWallet () {
-  let seed = cfr.generateSeed()
+  let seed = cfr.generateMnemonic()
 
   console.log(`
 Let's generate your Cosmos wallet. You will need this in the future to
 access your Atoms.
 
-Here is your wallet phrase:
+Here is your wallet:
+
 ${green(seed.toString('hex'))}
 
-${red(`KEEP YOUR WALLET SECRET AND DO NOT LOSE IT!`)}
-${cyan(`WARNING: If you lose your wallet, you will lose access to your Atoms.`)}
-${red(`WARNING: If someone gets your wallet phrase, they can take your Atoms.`)}
-${cyan(`WARNING: Write down your wallet phrase and DO NOT LOSE IT!`)}
+${red(`WRITE THIS DOWN AND DO NOT LOSE IT!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
-${cyan(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
   \n`)
 
@@ -97,7 +95,7 @@ async function promptForCurrency () {
 
 async function waitForBtcTx (address) {
   console.log(`
-${bold('Exchange rate:')} 1 BTC : ${cfr.bitcoin.ATOMS_PER_BTC} ATOM
+${bold('Suggested allocation rate:')} 1 BTC : ${cfr.bitcoin.ATOMS_PER_BTC} ATOM
 ${bold('Minimum donation:')} ${cfr.bitcoin.MINIMUM_AMOUNT / 1e8} BTC
 
 Your intermediate Bitcoin address is:
@@ -122,14 +120,14 @@ async function finalizeBtcDonation (wallet, inputs) {
 Ready to finalize contribution:
   ${bold('Donating:')} ${finalTx.paidAmount / 1e8} BTC
   ${bold('Bitcoin transaction fee:')} ${finalTx.feeAmount / 1e8} BTC
-  ${bold('Atom Equivalent:')} ${finalTx.atomAmount} ATOM
+  ${bold('Suggested Atom Equivalent:')} ${finalTx.atomAmount} ATOM
   ${bold('Cosmos address:')} ${wallet.addresses.cosmos}
   `)
 
   let { agree } = await prompt({
     type: 'confirm',
     name: 'agree',
-    message: 'Have you read and understand the Terms of Service and Donation Agreement?',
+    message: 'Have you read and understood the Terms of Service and Donation Agreement?',
     default: false
   })
   if (!agree) {
@@ -165,7 +163,7 @@ async function makeEthDonation (wallet) {
   let ethRate = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
   spinner.stop()
   console.log(`
-  ${bold('Exchange rate:')} 1 ETH : ${ethRate} ATOM
+  ${bold('Suggested allocation rate:')} 1 ETH : ${ethRate} ATOM
   ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
   ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos}
 
