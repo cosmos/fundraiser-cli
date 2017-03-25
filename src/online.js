@@ -67,12 +67,32 @@ Here is your wallet:
 ${green(seed.toString('hex'))}
 
 ${red(`WRITE THIS DOWN AND DO NOT LOSE IT!`)}
+
+${red(`IF YOU LOSE THIS WALLET YOU LOSE YOUR ATOMS!`)}
+
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
   \n`)
 
-  return cfr.deriveWallet(seed)
+  await prompt({
+    name: 'write-wallet',
+    message: 'Please write down your wallet, then continue.'
+  })
+
+  process.stdout.write('\x1Bc');
+
+
+  while (true) {
+        let { reinput } = await prompt({
+          name: 'reinput',
+          message: 'Please re-enter your 12-word wallet phrase:'
+        })
+	if (reinput.trim() == seed){
+		return cfr.deriveWallet(seed)
+	}
+	console.log("Incorrect. Try again or exit and restart")
+  }
 }
 
 async function inputWallet () {
@@ -158,7 +178,7 @@ TODO: links
 
 async function makeEthDonation (wallet) {
   let tx = cfr.ethereum.getTransaction(
-    `0x${wallet.addresses.cosmos}`,
+    `${wallet.addresses.cosmos}`,
     wallet.addresses.ethereum
   )
   let spinner = createSpinner('Fetching ATOM/ETH exchange rate...')
