@@ -147,7 +147,7 @@ Ready to finalize contribution:
   let { agree } = await prompt({
     type: 'confirm',
     name: 'agree',
-    message: 'Have you read and understood the Terms of Service and Donation Agreement?',
+    message: 'Have you read and agreed to the Terms of Service and Donation Agreement?',
     default: false
   })
   if (!agree) {
