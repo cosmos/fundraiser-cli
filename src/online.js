@@ -186,10 +186,11 @@ async function makeEthDonation (wallet) {
     wallet.addresses.ethereum
   )
   let spinner = createSpinner('Fetching ATOM/ETH exchange rate...')
-  let ethRate = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
+  let weiPerAtom = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
+  let atomPerEth = Math.pow(10, 18) / weiPerAtom
   spinner.stop()
   console.log(`
-  ${bold('Suggested allocation rate:')} 1 ETH : ${ethRate} ATOM
+  ${bold('Suggested allocation rate:')} 1 ETH : ${atomPerEth} ATOM
   ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
   ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos}
 
