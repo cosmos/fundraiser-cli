@@ -83,11 +83,9 @@ ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
     message: 'Please write down your wallet, then continue.'
   })
 
-  let walletStringLength =  walletString.split(/\r\n|\r|\n/).length
-  for (let i = 0; i < walletStringLength; i++){
-    readline.moveCursor(process.stdout, 0, -1) // move up 1 line
-    readline.clearLine(process.stdout)
-  }
+  let walletStringLength = walletString.split(/\r\n|\r|\n/).length
+  readline.moveCursor(process.stdout, 0, -walletStringLength)
+  readline.clearScreenDown(process.stdout)
 
   while (true) {
         let { reinput } = await prompt({
