@@ -1,5 +1,6 @@
 'use strict'
 
+const readline = require('readline')
 const { bold, cyan, red, green } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
@@ -58,7 +59,7 @@ async function createOrInputWallet () {
 async function createWallet () {
   let seed = cfr.generateMnemonic()
 
-  console.log(`
+  let walletString = `
 Let's generate your Cosmos wallet. You will need this in the future to
 access your Atoms.
 
@@ -73,15 +74,20 @@ ${red(`IF YOU LOSE THIS WALLET YOU LOSE YOUR ATOMS!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
 ${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
-  \n`)
+  \n`
+
+  console.log(walletString)
 
   await prompt({
     name: 'write-wallet',
     message: 'Please write down your wallet, then continue.'
   })
 
-  process.stdout.write('\x1Bc');
-
+  let walletStringLength =  walletString.split(/\r\n|\r|\n/).length
+  for (let i = 0; i < walletStringLength; i++){
+    readline.moveCursor(process.stdout, 0, -1) // move up 1 line
+    readline.clearLine(process.stdout)
+  }
 
   while (true) {
         let { reinput } = await prompt({
