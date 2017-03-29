@@ -24,6 +24,11 @@ Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
  "Y8888P"   "Y88888P"   "Y8888P"  888       888  "Y88888P"   "Y8888P"
 `),
 `
+
+${red(`WARNING: THE FUNDRAISER DOES NOT BEGIN UNTIL APRIL 6, at 6AM PDT!`)}
+${red(`WARNING: THIS IS NOT THE FINAL PRODUCTION VERSION OF THE FUNDRAISER SOFTWARE!`)}
+${red(`WARNING: ANY BITCOIN OR ETHER SENT PRIOR TO APRIL 6, 6AM PDT WILL BE LOST!`)}
+
 Welcome to the Cosmos Fundraiser!
 
 Thank you for your interest in donating funds for the development of The Cosmos Network.
