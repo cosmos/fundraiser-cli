@@ -1,5 +1,6 @@
 'use strict'
 
+const readline = require('readline')
 const { bold, cyan, red, green } = require('chalk')
 const { prompt } = require('inquirer')
 const createSpinner = require('ora')
@@ -58,7 +59,7 @@ async function createOrInputWallet () {
 async function createWallet () {
   let seed = cfr.generateMnemonic()
 
-  console.log(`
+  let walletString = `
 Let's generate your Cosmos wallet. You will need this in the future to
 access your Atoms.
 
@@ -67,12 +68,35 @@ Here is your wallet:
 ${green(seed.toString('hex'))}
 
 ${red(`WRITE THIS DOWN AND DO NOT LOSE IT!`)}
-${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
-${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
-${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
-  \n`)
 
-  return cfr.deriveWallet(seed)
+${red(`IF YOU LOSE THIS WALLET YOU LOSE YOUR ATOMS!`)}
+
+${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+${red(`WARNING: DO NOT LOSE YOUR WALLET!`)}
+  \n`
+
+  console.log(walletString)
+
+  await prompt({
+    name: 'write-wallet',
+    message: 'Please write down your wallet, then continue.'
+  })
+
+  let walletStringLength = walletString.split(/\r\n|\r|\n/).length
+  readline.moveCursor(process.stdout, 0, -walletStringLength)
+  readline.clearScreenDown(process.stdout)
+
+  while (true) {
+        let { reinput } = await prompt({
+          name: 'reinput',
+          message: 'Please re-enter your 12-word wallet phrase:'
+        })
+	if (reinput.trim() == seed){
+		return cfr.deriveWallet(seed)
+	}
+	console.log("Incorrect. Try again or exit and restart")
+  }
 }
 
 async function inputWallet () {
@@ -127,7 +151,7 @@ Ready to finalize contribution:
   let { agree } = await prompt({
     type: 'confirm',
     name: 'agree',
-    message: 'Have you read and understood the Terms of Service and Donation Agreement?',
+    message: 'Have you read and agreed to the Terms of Service and Donation Agreement?',
     default: false
   })
   if (!agree) {
@@ -158,14 +182,15 @@ TODO: links
 
 async function makeEthDonation (wallet) {
   let tx = cfr.ethereum.getTransaction(
-    `0x${wallet.addresses.cosmos}`,
+    `${wallet.addresses.cosmos}`,
     wallet.addresses.ethereum
   )
   let spinner = createSpinner('Fetching ATOM/ETH exchange rate...')
-  let ethRate = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
+  let weiPerAtom = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
+  let atomPerEth = Math.pow(10, 18) / weiPerAtom
   spinner.stop()
   console.log(`
-  ${bold('Suggested allocation rate:')} 1 ETH : ${ethRate} ATOM
+  ${bold('Suggested allocation rate:')} 1 ETH : ${atomPerEth} ATOM
   ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
   ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos}
 
