@@ -1,10 +1,10 @@
 'use strict'
 
-const { readFileSync } = require('fs')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
 const { Transaction } = require('bitcoinjs-lib')
 const readline = require('readline')
+cfr.fetchStatus = promisify(cfr.fetchStatus)
 cfr.bitcoin.pushTx = promisify(cfr.bitcoin.pushTx)
 cfr.bitcoin.fetchUtxos = promisify(cfr.bitcoin.fetchUtxos)
 
@@ -45,9 +45,15 @@ async function runCommand (commandName, args) {
 }
 
 const commands = {
+  async status () {
+    let status = await cfr.fetchStatus()
+    let { fundraiserEnded } = status
+    console.log(fundraiserEnded ? status : { fundraiserEnded })
+  },
+
   async genwallet () {
-    let seed = cfr.generateMnemonic()
-    console.log(seed)
+    let mnemonic = cfr.generateMnemonic()
+    console.log(mnemonic)
   },
 
   async btcaddress () {
