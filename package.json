@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf lib && babel --plugins transform-async-to-generator,transform-runtime --presets es2015 src -d lib && babel --plugins transform-async-to-generator,transform-runtime --presets es2015 bin/main.js > build/main.js",
+    "build": "rm -rf lib && babel --plugins transform-async-to-generator,transform-runtime --presets es2015 src -d lib && mkdir -p build && babel --plugins transform-async-to-generator,transform-runtime --presets es2015 bin/main.js > build/main.js",
     "source": "rm -rf lib && ln -s src lib",
     "prepublish": "npm run build",
     "publish": "npm run source"
