@@ -7,6 +7,7 @@ const createSpinner = require('ora')
 const promisify = require('bluebird').promisify
 const cfr = require('cosmos-fundraiser')
 const { FUNDRAISER_CONTRACT } = cfr.ethereum
+cfr.fetchStatus = promisify(cfr.fetchStatus)
 cfr.bitcoin.pushTx = promisify(cfr.bitcoin.pushTx)
 cfr.bitcoin.fetchFeeRate = promisify(cfr.bitcoin.fetchFeeRate)
 cfr.bitcoin.waitForPayment = promisify(cfr.bitcoin.waitForPayment)
@@ -35,6 +36,8 @@ Thank you for your interest in donating funds for the development of The Cosmos 
 Let's get started!
   `)
 
+  await checkFundraiserStatus()
+
   let wallet = await createOrInputWallet()
   let currency = await promptForCurrency()
   if (currency === 'BTC') {
@@ -43,6 +46,22 @@ Let's get started!
   } else {
     await makeEthDonation(wallet)
   }
+}
+
+async function checkFundraiserStatus () {
+  let spinner = createSpinner('Checking fundraiser status...')
+  let status = await cfr.fetchStatus()
+  spinner.stop()
+  if (!status.fundraiserEnded) return
+  let { donateAnyway } = await prompt({
+    type: 'confirm',
+    name: 'donateAnyway',
+    message: red(`NOTICE: The fundraiser has ended.
+You may still donate, but you will NOT receive Atoms.
+Continue anyway?`)
+  })
+  if (!donateAnyway) process.exit(0)
+  console.log()
 }
 
 async function createOrInputWallet () {
