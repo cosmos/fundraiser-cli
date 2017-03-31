@@ -66,7 +66,7 @@ const commands = {
     }
   },
 
-  async buildtx (btcAddress, feeRate = 500) {
+  async buildtx (btcAddress, feeRate = 300) {
     if (!btcAddress) {
       fail(`
 Usage:
