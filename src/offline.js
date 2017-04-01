@@ -109,7 +109,7 @@ command again.
   async ethtx () {
     let wallet = await readWallet()
     let tx = cfr.ethereum.getTransaction(
-      `${wallet.addresses.cosmos}`,
+      wallet.addresses.cosmos,
       wallet.addresses.ethereum
     )
     console.log(JSON.stringify(tx, null, '  '))
