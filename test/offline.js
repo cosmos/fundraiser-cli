@@ -106,7 +106,7 @@ test('buildtx', function (t) {
     }
     t.end()
   })
-  t.test('btcaddress for empty address', function (t) {
+  t.test('buildtx for empty address', function (t) {
     var seed = run('genwallet')
     var btcAddress = run('btcaddress', seed)
     try {
@@ -118,4 +118,25 @@ test('buildtx', function (t) {
     }
     t.end()
   })
+  t.test('buildtx for known address', function (t) {
+    var tx = run('buildtx 121BDB6Zv8z3Rmt3oPsD7uUqHDLBaTRZJy 100')
+    t.equal(tx, '01000000029d8bece6e65fc8591d04955a5d815ab9842c3f8f4c8c44b9a8aa6ba12a1c12540100000000ffffffffdb107a00fb681e8a2edc6a5a150ce7364e6e3a4f7a761c61fae68215e03ca0640100000000ffffffff026f7b0000000000001976a91494eec3bfbe6eab5a3799d83c8298cd509794ca4388ace8030000000000001976a914000000000000000000000000000000000000000088ac00000000\n', 'correct output')
+    t.end()
+  })
+  t.test('buildtx for known address with high fee rate', function (t) {
+    try {
+      run('buildtx 121BDB6Zv8z3Rmt3oPsD7uUqHDLBaTRZJy 2000')
+      t.fail('should have thrown')
+    } catch (err) {
+      t.equal(err.stdout, 'Not enough coins given to pay fee.\n      tx length=374\n      fee rate=2000 satoshi/byte\n      fee amount=748000 satoshis\n      output amount=68999 satoshis\n', 'correct output')
+    }
+    t.end()
+  })
+})
+
+test('ethtx', function (t) {
+  var seed = 'blue elephant host rebel add weapon october snack range service zone awful'
+  var ethTx = run('ethtx', seed)
+  t.equal(ethTx, '{\n  "to": "0xa4028F2aec0ad18964e368338E5268FebB4F5423",\n  "gas": 150000,\n  "data": "0x1c9981f8000000000000000000000000a453d974f7609b719e3dc52ddc13b465b8268787000000000000000000000000a853c849e346b43965bae5c7c27606bd527fbb9f5c22bbbe"\n}\n', 'correct output')
+  t.end()
 })
