@@ -13,10 +13,19 @@ function fail (message) {
   process.exit(1)
 }
 
-async function readWallet () {
+async function readWallet (prmpt) {
+  let seed = await readSeed(prmpt)
+  let wallet = cfr.deriveWallet(seed)
+  return wallet
+}
+
+async function readSeed (prmpt) {
+  if (!prmpt) {
+    prmpt = 'Please enter your wallet seed phrase'
+  }
   let seed
   if (process.stdin.isTTY) {
-    process.stdout.write('Please enter your wallet seed phrase:\n> ')
+    process.stdout.write(prmpt + ':\n> ')
     let rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -33,7 +42,7 @@ async function readWallet () {
     })
     seed = seed.toString('utf8').trim()
   }
-  return cfr.deriveWallet(seed)
+  return seed
 }
 
 async function runCommand (commandName, args) {
@@ -113,6 +122,22 @@ command again.
       wallet.addresses.ethereum
     )
     console.log(JSON.stringify(tx, null, '  '))
+  },
+
+  async splitseed () {
+    let seed = await readSeed('Please enter the seed phrase to split')
+    if (!seed) {
+      fail(`Usage: cosmos-fundraiser splitseed < walletSeed`)
+    }
+    let {one, two} = cfr.splitMnemonic(seed)
+    console.log("one: " + one + "\ntwo: " + two)
+  },
+
+  async joinseed() {
+    let one = await readSeed('Please enter seed phrase 1')
+    let two = await readSeed('Please enter seed phrase 2')
+    let seed = cfr.joinMnemonic(one, two)
+    console.log("one: " + one + "\ntwo: " + two + "\nseed: " + seed)
   }
 }
 
