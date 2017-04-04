@@ -120,7 +120,7 @@ test('buildtx', function (t) {
   })
   t.test('buildtx for known address', function (t) {
     var tx = run('buildtx 121BDB6Zv8z3Rmt3oPsD7uUqHDLBaTRZJy 100')
-    t.equal(tx, '01000000029d8bece6e65fc8591d04955a5d815ab9842c3f8f4c8c44b9a8aa6ba12a1c12540100000000ffffffffdb107a00fb681e8a2edc6a5a150ce7364e6e3a4f7a761c61fae68215e03ca0640100000000ffffffff026f7b0000000000001976a91494eec3bfbe6eab5a3799d83c8298cd509794ca4388ace8030000000000001976a914000000000000000000000000000000000000000088ac00000000\n', 'correct output')
+    t.equal(tx, '01000000029d8bece6e65fc8591d04955a5d815ab9842c3f8f4c8c44b9a8aa6ba12a1c12540100000000ffffffffdb107a00fb681e8a2edc6a5a150ce7364e6e3a4f7a761c61fae68215e03ca0640100000000ffffffff026f7b0000000000001976a914320b2f2b3da60041628d82caf2f715377a4dfa7f88ace8030000000000001976a914000000000000000000000000000000000000000088ac00000000\n', 'correct output')
     t.end()
   })
   t.test('buildtx for known address with high fee rate', function (t) {
@@ -137,6 +137,6 @@ test('buildtx', function (t) {
 test('ethtx', function (t) {
   var seed = 'blue elephant host rebel add weapon october snack range service zone awful'
   var ethTx = run('ethtx', seed)
-  t.equal(ethTx, '{\n  "to": "0xa4028F2aec0ad18964e368338E5268FebB4F5423",\n  "gas": 150000,\n  "data": "0x1c9981f8000000000000000000000000a453d974f7609b719e3dc52ddc13b465b8268787000000000000000000000000a853c849e346b43965bae5c7c27606bd527fbb9f5c22bbbe"\n}\n', 'correct output')
+  t.equal(ethTx, '{\n  "to": "0x168787143E383A7EC5df0D1787048F7Ab794a260",\n  "gas": 150000,\n  "data": "0x1c9981f8000000000000000000000000a453d974f7609b719e3dc52ddc13b465b8268787000000000000000000000000a853c849e346b43965bae5c7c27606bd527fbb9f5c22bbbe"\n}\n', 'correct output')
   t.end()
 })
