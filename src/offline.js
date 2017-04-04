@@ -115,11 +115,18 @@ command again.
     return await cfr.bitcoin.pushTx(txHex)
   },
 
-  async ethtx () {
+  async ethtx (amountEth) {
+    if (!amountEth) {
+      fail(`
+Usage:
+  cosmos-fundraiser ethtx <amountEth> 
+      `)
+    }
     let wallet = await readWallet()
     let tx = cfr.ethereum.getTransaction(
       wallet.addresses.cosmos,
-      wallet.addresses.ethereum
+      wallet.addresses.ethereum,
+      amountEth
     )
     console.log(JSON.stringify(tx, null, '  '))
   },

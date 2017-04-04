@@ -205,9 +205,14 @@ TODO: links
 }
 
 async function makeEthDonation (wallet) {
+  let { amountEth } = await prompt({
+    name: 'amountEth',
+    message: 'Please enter the amount of ether you would like to donate:'
+  })
   let tx = cfr.ethereum.getTransaction(
     `${wallet.addresses.cosmos}`,
-    wallet.addresses.ethereum
+    wallet.addresses.ethereum,
+    amountEth
   )
   let spinner = createSpinner('Fetching ATOM/ETH exchange rate...')
   let weiPerAtom = await cfr.ethereum.fetchAtomRate(FUNDRAISER_CONTRACT)
@@ -222,9 +227,8 @@ Here's your donation transaction:
 ${cyan('  ' + JSON.stringify(tx, null, '    ').replace('}', '  }'))}
 
 To make your donation, copy and paste this information into a wallet
-such as MyEtherWallet or Mist. Be sure to include an amount of ETH to
-donate! Your Cosmos address is included in the data, and the donation
-will be recorded for that address in the smart contract.
+such as MyEtherWallet or Mist. Your Cosmos address is included in the data, 
+and the donation will be recorded for that address in the smart contract.
 
 Thank you for participating in the Cosmos Fundraiser!
   `)
