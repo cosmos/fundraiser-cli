@@ -56,7 +56,7 @@ async function checkFundraiserStatus () {
   let { donateAnyway } = await prompt({
     type: 'confirm',
     name: 'donateAnyway',
-    message: red(`NOTICE: The fundraiser has ended.
+    message: red(`NOTICE: The fundraiser has ended or has not yet started.
 You may still donate, but you will NOT receive Atoms.
 Continue anyway?`)
   })
