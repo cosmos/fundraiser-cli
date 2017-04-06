@@ -180,8 +180,8 @@ Ready to finalize contribution:
   })
   if (!agree) {
     console.log(red(`
-You can read the Terms of Service and Donation Agreement here:
-TODO: links
+You can read the Cosmos Contribution Terms here:
+https://github.com/cosmos/cosmos/raw/master/fundraiser/Interchain%20Cosmos%20Contribution%20Terms%20-%20FINAL.pdf
     `))
     return
   }
