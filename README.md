@@ -11,7 +11,7 @@ ALL BITCOIN AND ETHER SENT PRIOR TO APRIL 6, 6AM PDT WILL BE LOST!
 You need a recent version of NodeJS. We recommend version 6.10.1 or 7.8.0.  Once you have nodejs and npm installed, run the following command to install the cosmos-fundraiser tool.
 
 ```bash
-npm install -g cosmos-fundraiser-cli@2.9.0
+npm install -g cosmos-fundraiser-cli@2.10.0
 ```
 ## Run
 

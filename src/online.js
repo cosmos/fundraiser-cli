@@ -26,10 +26,6 @@ Y88b  d88P Y88b. .d88P Y88b  d88P 888   "   888 Y88b. .d88P Y88b  d88P
 `),
 `
 
-${red(`WARNING: THE FUNDRAISER DOES NOT BEGIN UNTIL APRIL 6, at 6AM PDT!`)}
-${red(`WARNING: THIS IS NOT THE FINAL PRODUCTION VERSION OF THE FUNDRAISER SOFTWARE!`)}
-${red(`WARNING: ANY BITCOIN OR ETHER SENT PRIOR TO APRIL 6, 6AM PDT WILL BE LOST!`)}
-
 Welcome to the Cosmos Fundraiser!
 
 Thank you for your interest in donating funds for the development of The Cosmos Network.
@@ -216,7 +212,7 @@ async function makeEthDonation (wallet) {
   console.log(`
   ${bold('Suggested allocation rate:')} 1 ETH : ${atomPerEth} ATOM
   ${bold('Minimum donation:')} ${cfr.ethereum.MIN_DONATION} ETH
-  ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos}
+  ${bold('Your Cosmos address:')} ${wallet.addresses.cosmos} (DO NOT SEND ETHER HERE!)
 
 Here's your donation transaction:
 ${cyan('  ' + JSON.stringify(tx, null, '    ').replace('}', '  }'))}
