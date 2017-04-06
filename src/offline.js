@@ -75,6 +75,16 @@ const commands = {
     }
   },
 
+  async cosmosaddress () {
+    try {
+      let wallet = await readWallet()
+      console.log(wallet.addresses.cosmos)
+    } catch (err) {
+      console.log('error:', err)
+      fail(`Usage: cosmos-fundraiser cosmosaddress < walletSeed`)
+    }
+  },
+
   async buildtx (btcAddress, feeRate = 300) {
     if (!btcAddress) {
       fail(`
