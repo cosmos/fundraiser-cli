@@ -12,6 +12,15 @@ You need a recent version of NodeJS. We recommend version 6.10.1 or 7.8.0.  Once
 ```bash
 npm install -g cosmos-fundraiser-cli@2.11.0
 ```
+
+## Cosmos Address
+
+To compute your Cosmos address from your twelve word mnemonic, run
+
+```bash
+cosmos-fundraiser cosmosaddress
+```
+
 ## Run
 
 Two modes: online and offline.
