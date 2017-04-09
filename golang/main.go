@@ -45,5 +45,5 @@ func main() {
 	var pubKey crypto.PubKeySecp256k1
 	copy(pubKey[:], pubBytes)
 	addr := pubKey.Address()
-	fmt.Printf("Your Cosmos Address: %X\n", addr)
+	fmt.Printf("Your Cosmos Address: 0x%X\n", addr)
 }
