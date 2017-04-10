@@ -1,5 +1,5 @@
 hash: 8b2e809021695ee646ee0ec4e51a6783df8fc0e8d00655906945c2b0c5a967ca
-updated: 2017-04-09T01:36:36.313792698-07:00
+updated: 2017-04-10T03:02:19.528604281-07:00
 imports:
 - name: github.com/btcsuite/btcd
   version: b8df516b4b267acf2de46be593a9d948d1d2c420
@@ -13,8 +13,6 @@ imports:
   version: 637e656429416087660c84436a2a035d69d54e2e
 - name: github.com/go-stack/stack
   version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
-- name: github.com/howeyc/gopass
-  version: bf9dde6d0d2c004a008c27aaee91170c786f6db8
 - name: github.com/mattn/go-colorable
   version: 9fdad7c47650b7d2e1da50644c1f4ba7f172f252
 - name: github.com/mattn/go-isatty
@@ -29,7 +27,7 @@ imports:
 - name: github.com/tendermint/go-common
   version: 70e694ee76f09058ea38c9ba81b4aa621bd54df1
 - name: github.com/tendermint/go-crypto
-  version: 05aad391c3d580c5d60a11e35896b4cb4a61eca1
+  version: 5753cd6fc308136310099f4870dfb421323b097d
   subpackages:
   - hd
 - name: github.com/tendermint/go-data
@@ -54,7 +52,6 @@ imports:
   - poly1305
   - ripemd160
   - salsa20/salsa
-  - ssh/terminal
 - name: golang.org/x/sys
   version: 50c6bc5e4292a1d4e65c6e9be5f53be28bcbe28e
   subpackages:
