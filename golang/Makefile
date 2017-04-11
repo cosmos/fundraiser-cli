@@ -1,8 +1,8 @@
 appname := cosfundtool
 sources := $(wildcard *.go)
-build = GOOS=$(1) GOARCH=$(2) docker run -it --rm -v "$(PWD):/go/src/app" -w "/go/src/app" -e "CGO_ENABLED=0" golang:alpine go build -o build/$(appname)$(3)
-tar = cd build && tar -cvzf $(1)_$(2).tar.gz $(appname)$(3) && rm $(appname)$(3)
-zip = cd build && zip $(1)_$(2).zip $(appname)$(3) && rm $(appname)$(3)
+build = GOOS=$(1) GOARCH=$(2) docker run -it --rm -v "$(PWD):/go/src/app" -w "/go/src/app" -e "CGO_ENABLED=0" golang:alpine go build -o build/$(appname)_$(1)_$(2)$(3)
+tar = cd build && tar -cvzf $(appname)_$(1)_$(2).tar.gz $(appname)_$(1)_$(2)$(3) # && rm $(appname)$(3)
+zip = cd build && zip $(appname)_$(1)_$(2).zip $(appname)_$(1)_$(2)$(3) # && rm $(appname)$(3)
 
 .PHONY: all windows darwin linux clean
 
