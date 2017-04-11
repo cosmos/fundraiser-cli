@@ -65,4 +65,6 @@ func main() {
 		fmt.Printf("\nYour Intermediate Bitcoin Address: %v\n", btcAddr)
 		fmt.Printf("Your Intermediate Bitcoin Private Key: %v\n", hd.WIFFromPrivKeyBytes(privBytes, true))
 	}
+        fmt.Println("\nHit <Enter> to exit...")
+        readlineKeyboard()
 }
