@@ -2,15 +2,21 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha256"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
+
+	"golang.org/x/crypto/ripemd160"
 
 	cmn "github.com/tendermint/go-common"
 	"github.com/tendermint/go-crypto"
 	"github.com/tendermint/go-crypto/hd"
 	"github.com/tyler-smith/go-bip39"
 )
+
+var flagVerbose bool
 
 func readlineKeyboard() string {
 	reader := bufio.NewReader(os.Stdin)
@@ -36,11 +42,28 @@ Welcome to the Cosmos fundraiser tool.`) + cmn.Magenta(`
 (Please remember, NEVER type your 12 words onto an "online" computer.)`)
 
 func main() {
+	// Parse flags
+	flag.BoolVar(&flagVerbose, "verbose", false, "Show more information")
+	flag.Parse()
+
+	// Print banner
 	fmt.Println(banner)
+
+	// Get mnemonic
 	fmt.Println("\nEnter your 12-word mnemonic: ")
 	mnemonic := readlineKeyboard()
+
+	// Validate mnemonic
+	err := validateBip39Words(mnemonic)
+	if err != nil {
+		fmt.Println(cmn.Red(err))
+		return
+	}
+
 	seed := bip39.NewSeed(mnemonic, "")
 	_, priv, ch, _ := hd.ComputeMastersFromSeed(string(seed))
+
+	// Calculate Cosmos Addr
 	{
 		privBytes := hd.DerivePrivateKeyForPath(
 			hd.HexDecode(priv),
@@ -53,8 +76,22 @@ func main() {
 		addr := pubKey.Address()
 		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT use it as an Ethereum address."))
 		fmt.Printf("Your Cosmos Address: 0x%X\n", addr)
+		// Show diagnostic info
+		if flagVerbose {
+			fmt.Printf("Cosmos Public Key: 0x%X\n", pubBytes)
+			hasherSHA256 := sha256.New()
+			hasherSHA256.Write(pubKey[:]) // does not error
+			sha := hasherSHA256.Sum(nil)
+			fmt.Printf("Sha256(Cosmos Public Key): 0x%X\n", sha)
+			hasherRIPEMD160 := ripemd160.New()
+			hasherRIPEMD160.Write(sha) // does not error
+			ripe := hasherRIPEMD160.Sum(nil)
+			fmt.Printf("Ripe160(Sha256(Cosmos Public Key)): 0x%X\n", ripe)
+		}
 		fmt.Println(cmn.Red("!!!WARNING!!! Do NOT use it as an Ethereum address."))
 	}
+
+	// Calculate Bitcoin Info
 	{
 		privBytes := hd.DerivePrivateKeyForPath(
 			hd.HexDecode(priv),
@@ -65,6 +102,7 @@ func main() {
 		fmt.Printf("\nYour Intermediate Bitcoin Address: %v\n", btcAddr)
 		fmt.Printf("Your Intermediate Bitcoin Private Key: %v\n", hd.WIFFromPrivKeyBytes(privBytes, true))
 	}
-        fmt.Println("\nHit <Enter> to exit...")
-        readlineKeyboard()
+	fmt.Println("\nYou can check your recommended Atom allocation at https://fundraiser.cosmos.network .")
+	fmt.Println("\nHit <Enter> to exit...")
+	readlineKeyboard()
 }
