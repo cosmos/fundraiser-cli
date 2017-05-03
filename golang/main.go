@@ -17,6 +17,8 @@ import (
 )
 
 var flagVerbose bool
+var flagGenerate bool
+var flagCustomEntropy string
 
 func readlineKeyboard() string {
 	reader := bufio.NewReader(os.Stdin)
@@ -44,14 +46,31 @@ Welcome to the Cosmos fundraiser tool.`) + cmn.Magenta(`
 func main() {
 	// Parse flags
 	flag.BoolVar(&flagVerbose, "verbose", false, "Show more information")
+	flag.BoolVar(&flagGenerate, "generate", false, "Generate new key")
+	flag.StringVar(&flagCustomEntropy, "entropy", "", "Additional entropy")
 	flag.Parse()
 
 	// Print banner
 	fmt.Println(banner)
 
-	// Get mnemonic
-	fmt.Println("\nEnter your 12-word mnemonic: ")
-	mnemonic := readlineKeyboard()
+	// Get or generate mnemonic
+	var mnemonic string
+	if flagGenerate {
+		entropy, _ := bip39.NewEntropy(128) // does not error
+		hasherRIPEMD160 := ripemd160.New()
+		hasherRIPEMD160.Write([]byte(flagCustomEntropy)) // does not error
+		customEntropy := hasherRIPEMD160.Sum(nil)
+		for i, b := range entropy {
+			entropy[i] = b ^ customEntropy[i]
+		}
+		mnemonic, _ = bip39.NewMnemonic(entropy) // does not error
+		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT forget these 12 words."))
+		fmt.Printf("Your 12-word mnemonic: %v", mnemonic)
+		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT forget these 12 words."))
+	} else {
+		fmt.Println("\nEnter your 12-word mnemonic: ")
+		mnemonic = readlineKeyboard()
+	}
 
 	// Validate mnemonic
 	err := validateBip39Words(mnemonic)
