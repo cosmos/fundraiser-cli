@@ -1,0 +1,71 @@
+hash: 8b2e809021695ee646ee0ec4e51a6783df8fc0e8d00655906945c2b0c5a967ca
+updated: 2017-06-17T14:24:46.469412136-07:00
+imports:
+- name: github.com/btcsuite/btcd
+  version: 53f55a46349aa8f44b90895047e843666991cf24
+  subpackages:
+  - btcec
+- name: github.com/btcsuite/btcutil
+  version: 86346b5a958c0cf94186b87855469ae991be501c
+  subpackages:
+  - base58
+- name: github.com/go-kit/kit
+  version: 6964666de57c88f7d93da127e900d201b632f561
+  subpackages:
+  - log
+  - log/level
+  - log/term
+- name: github.com/go-logfmt/logfmt
+  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
+- name: github.com/go-stack/stack
+  version: 7a2f19628aabfe68f0766b59e74d6315f8347d22
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
+- name: github.com/mattn/go-colorable
+  version: ded68f7a9561c023e790de24279db7ebf473ea80
+- name: github.com/mattn/go-isatty
+  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: github.com/pkg/errors
+  version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: github.com/tendermint/ed25519
+  version: 1f52c6f8b8a5c7908aff4497c186af344b428925
+  subpackages:
+  - edwards25519
+  - extra25519
+- name: github.com/tendermint/go-common
+  version: f9e3db037330c8a8d61d3966de8473eaf01154fa
+- name: github.com/tendermint/go-crypto
+  version: 7dff40942a64cdeefefa9446b2d104750b349f8a
+  subpackages:
+  - hd
+- name: github.com/tendermint/go-wire
+  version: 5f88da3dbc1a72844e6dfaf274ce87f851d488eb
+  subpackages:
+  - data
+  - data/base58
+- name: github.com/tendermint/log15
+  version: ae0f3d6450da9eac7074b439c8e1c3cabf0d5ce6
+  subpackages:
+  - term
+- name: github.com/tendermint/tmlibs
+  version: bd9d0d1637dadf1330e167189d5e5031aadcda6f
+  subpackages:
+  - common
+  - log
+- name: github.com/tyler-smith/go-bip39
+  version: 8e7a99b3e716f36d3b080a9a70f9eb45abe4edcc
+- name: golang.org/x/crypto
+  version: 0fe963104e9d1877082f8fb38f816fcd97eb1d10
+  subpackages:
+  - nacl/secretbox
+  - openpgp/armor
+  - openpgp/errors
+  - pbkdf2
+  - poly1305
+  - ripemd160
+  - salsa20/salsa
+- name: golang.org/x/sys
+  version: e62c3de784db939836898e5c19ffd41bece347da
+  subpackages:
+  - unix
+testImports: []

@@ -1,0 +1,4 @@
+package: github.com/cosmos/fundraiser-cli/golang
+import:
+- package: github.com/tendermint/go-crypto
+  version: develop
