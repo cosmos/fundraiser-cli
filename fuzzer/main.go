@@ -12,6 +12,8 @@ import (
 	crypto "github.com/tendermint/go-crypto"
 	"github.com/tendermint/go-crypto/hd"
 	"github.com/tyler-smith/go-bip39"
+
+	levenshtein "github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
 var flagVerbose bool
@@ -64,9 +66,39 @@ func main() {
 	// Split mnemonic to 12 words
 	mnemonicSlice := strings.Split(mnemonic, " ")
 
-	// First try all pairwise swaps
-	fmt.Println("Trying all pairwise swaps of the words. Please be patient...")
+	// Find all words with distance less than 2 from each word
+	neighbours := make([][]string, 12)
+	options := levenshtein.DefaultOptions
+	for i := 0; i < 12; i++ {
+		for j := 0; j < len(bip39.WordList); j++ {
+			source := []rune(mnemonicSlice[i])
+			target := []rune(bip39.WordList[j])
+			if levenshtein.DistanceForStrings(source, target, options) <= 2 {
+				neighbours[i] = append(neighbours[i], string(target))
+			}
+		}
+	}
+
+	// Try all words within distance of 3
+	total := 1
+	for i := 0; i < 12; i++ {
+		total = total * len(neighbours[i])
+	}
+	fmt.Printf("Trying all %d combinations of close words. Please be patient...\n", total)
 	ch := make(chan []string)
+	go Substitutions(neighbours, ch)
+	for {
+		newWords, ok := <-ch
+		if !ok {
+			break
+		}
+
+		checkWords(newWords)
+	}
+
+	// Try all pairwise swaps
+	fmt.Println("Trying all pairwise swaps of the words. Please be patient...")
+	ch = make(chan []string)
 	go Pairwise(mnemonicSlice, ch)
 	for {
 		newWords, ok := <-ch
@@ -217,6 +249,24 @@ func permute(newList, list []string, iterIdx int, ch chan []string) {
 			copy(perm, newList)
 			ch <- perm
 		}
+	}
+}
+
+func Substitutions(list [][]string, ch chan []string) {
+	words := make([]string, len(list))
+	substitutions(list, words, 0, ch)
+	close(ch)
+}
+
+func substitutions(list [][]string, words []string, index int, ch chan []string) {
+	if index == len(words) {
+		ch <- words
+		return
+
+	}
+	for j := 0; j < len(list[index]); j++ {
+		words[index] = list[index][j]
+		substitutions(list, words, index+1, ch)
 	}
 }
 
