@@ -122,6 +122,22 @@ func main() {
 		checkWords(newWords)
 	}
 
+	// Now try fiddling each position.
+	fmt.Println("Trying fiddling each each of the words, keeping the others constant. Please be patient...")
+	fmt.Printf("Fiddling word no ")
+	for i := 0; i < 12; i++ {
+		fmt.Printf("%d ", i)
+		// For each word in WordList,
+		for j := 0; j < len(bip39.WordList); j++ {
+			c := make([]string, 12)
+			copy(c, mnemonicSlice)
+			c[i] = bip39.WordList[j]
+
+			checkWords(c)
+		}
+	}
+	fmt.Println("")
+
 	// Now try all possible permutations.
 	fmt.Println("Trying all permutations of the words. Please be patient...")
 	ch = make(chan []string)
@@ -145,20 +161,6 @@ func main() {
 		}(c)
 	}
 	fmt.Printf("Tried %d permutations. No match found\n", counter)
-
-	// Now try fiddling each position.
-	fmt.Println("Trying fiddling each each of the words, keeping the others constant. Please be patient...")
-	for i := 0; i < 12; i++ {
-		fmt.Println("Fiddling word no", i)
-		// For each word in WordList,
-		for j := 0; j < len(bip39.WordList); j++ {
-			c := make([]string, 12)
-			copy(c, mnemonicSlice)
-			c[i] = bip39.WordList[j]
-
-			checkWords(c)
-		}
-	}
 
 }
 
@@ -275,6 +277,7 @@ func checkWords(words []string) {
 	if flagFilter == "" {
 		fmt.Println(addrStr)
 	} else if strings.Contains(addrStr, flagFilter) {
+		fmt.Println("")
 		fmt.Println("FOUND A MATCH!!!", addrStr)
 		os.Exit(0)
 	}
