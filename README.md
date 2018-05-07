@@ -1,9 +1,6 @@
 # Cosmos Fundraiser CLI
 
-WARNING!
-
-THE FUNDRAISER DOES NOT BEGIN UNTIL APRIL 6, 6AM PDT!
-ALL BITCOIN AND ETHER SENT PRIOR TO APRIL 6, 6AM PDT WILL BE LOST!
+NOTE: This is the fundraiser project website. To generate your Cosmos address from your fundraiser 12-word secret follow the instructions for the [Cosmos Fundraiser Tool[(https://github.com/cosmos/fundraiser-cli/releases/tag/2.11.3). DO NOT SHARE YOUR 12-WORD SECRET OR THE PRIVATE KEY.
 
 ## Install
 
