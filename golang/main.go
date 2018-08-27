@@ -10,10 +10,11 @@ import (
 
 	"golang.org/x/crypto/ripemd160"
 
-	cmn "github.com/tendermint/go-common"
-	"github.com/tendermint/go-crypto"
-	"github.com/tendermint/go-crypto/hd"
-	"github.com/tyler-smith/go-bip39"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/hd"
+	"github.com/cosmos/go-bip39"
+	crypto "github.com/tendermint/tendermint/crypto/secp256k1"
+	bech32 "github.com/tendermint/tendermint/libs/bech32"
+	cmn "github.com/tendermint/tendermint/libs/common"
 )
 
 var flagVerbose bool
@@ -71,6 +72,7 @@ func main() {
 		fmt.Println("\nEnter your 12-word mnemonic: ")
 		mnemonic = readlineKeyboard()
 	}
+	fmt.Println("")
 
 	// Validate mnemonic
 	err := validateBip39Words(mnemonic)
@@ -80,24 +82,36 @@ func main() {
 	}
 
 	seed := bip39.NewSeed(mnemonic, "")
-	_, priv, ch, _ := hd.ComputeMastersFromSeed(string(seed))
+	priv, ch := hd.ComputeMastersFromSeed(seed)
 
 	// Calculate Cosmos Addr
 	{
-		privBytes := hd.DerivePrivateKeyForPath(
-			hd.HexDecode(priv),
-			hd.HexDecode(ch),
+		privBytes, err := hd.DerivePrivateKeyForPath(
+			priv,
+			ch,
 			"44'/118'/0'/0/0",
 		)
-		pubBytes := hd.PubKeyBytesFromPrivKeyBytes(privBytes, true)
-		var pubKey crypto.PubKeySecp256k1
-		copy(pubKey[:], pubBytes)
+		if err != nil {
+			panic(err)
+		}
+		pubKey := crypto.PrivKeySecp256k1(privBytes).PubKey().(crypto.PubKeySecp256k1)
+		if err != nil {
+			panic(err)
+		}
 		addr := pubKey.Address()
-		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT use it as an Ethereum address."))
-		fmt.Printf("Your Cosmos Address: 0x%X\n", addr)
+		b32, err := bech32.ConvertAndEncode("cosmos", addr)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Your Cosmos Address: %v\n", b32)
+		b32Pub, err := bech32.ConvertAndEncode("cosmospub", pubKey[:])
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Your Cosmos Public Key: %v\n", b32Pub)
 		// Show diagnostic info
 		if flagVerbose {
-			fmt.Printf("Cosmos Public Key: 0x%X\n", pubBytes)
+			fmt.Printf("Cosmos Public Key: 0x%X\n", pubKey)
 			hasherSHA256 := sha256.New()
 			hasherSHA256.Write(pubKey[:]) // does not error
 			sha := hasherSHA256.Sum(nil)
@@ -107,21 +121,8 @@ func main() {
 			ripe := hasherRIPEMD160.Sum(nil)
 			fmt.Printf("Ripe160(Sha256(Cosmos Public Key)): 0x%X\n", ripe)
 		}
-		fmt.Println(cmn.Red("!!!WARNING!!! Do NOT use it as an Ethereum address."))
 	}
 
-	// Calculate Bitcoin Info
-	{
-		privBytes := hd.DerivePrivateKeyForPath(
-			hd.HexDecode(priv),
-			hd.HexDecode(ch),
-			"44'/0'/0'/0/0",
-		)
-		btcAddr := hd.ComputeAddressForPrivKey(hd.HexEncode(privBytes))
-		fmt.Printf("\nYour Intermediate Bitcoin Address: %v\n", btcAddr)
-		fmt.Printf("Your Intermediate Bitcoin Private Key: %v\n", hd.WIFFromPrivKeyBytes(privBytes, true))
-	}
-	fmt.Println("\nYou can check your recommended Atom allocation at https://fundraiser.cosmos.network .")
 	fmt.Println("\nHit <Enter> to exit...")
 	readlineKeyboard()
 }
