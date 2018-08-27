@@ -8,8 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/crypto/ripemd160"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keys/hd"
 	"github.com/cosmos/go-bip39"
 	crypto "github.com/tendermint/tendermint/crypto/secp256k1"
@@ -42,7 +40,7 @@ var banner = cmn.Cyan(`
   "Y8888P"   "Y88888P"   "Y8888P"  888       888  "Y88888P"   "Y8888P`) + cmn.White(`
 	
 Welcome to the Cosmos fundraiser tool.`) + cmn.Magenta(`
-(Please remember, NEVER type your 12 words onto an "online" computer.)`)
+(Please remember, NEVER type your 24 words onto an "online" computer.)`)
 
 func main() {
 	// Parse flags
@@ -57,19 +55,19 @@ func main() {
 	// Get or generate mnemonic
 	var mnemonic string
 	if flagGenerate {
-		entropy, _ := bip39.NewEntropy(128) // does not error
-		hasherRIPEMD160 := ripemd160.New()
-		hasherRIPEMD160.Write([]byte(flagCustomEntropy)) // does not error
-		customEntropy := hasherRIPEMD160.Sum(nil)
+		entropy, _ := bip39.NewEntropy(256) // does not error
+		hasherSHA256 := sha256.New()
+		hasherSHA256.Write([]byte(flagCustomEntropy)) // does not error
+		customEntropy := hasherSHA256.Sum(nil)
 		for i, b := range entropy {
 			entropy[i] = b ^ customEntropy[i]
 		}
 		mnemonic, _ = bip39.NewMnemonic(entropy) // does not error
-		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT forget these 12 words."))
-		fmt.Printf("Your 12-word mnemonic: %v", mnemonic)
-		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT forget these 12 words."))
+		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT forget these 24 words."))
+		fmt.Printf("Your 24-word mnemonic: %v", mnemonic)
+		fmt.Println(cmn.Red("\n!!!WARNING!!! Do NOT forget these 24 words."))
 	} else {
-		fmt.Println("\nEnter your 12-word mnemonic: ")
+		fmt.Println("\nEnter your 24-word mnemonic: ")
 		mnemonic = readlineKeyboard()
 	}
 	fmt.Println("")
@@ -116,10 +114,10 @@ func main() {
 			hasherSHA256.Write(pubKey[:]) // does not error
 			sha := hasherSHA256.Sum(nil)
 			fmt.Printf("Sha256(Cosmos Public Key): 0x%X\n", sha)
-			hasherRIPEMD160 := ripemd160.New()
-			hasherRIPEMD160.Write(sha) // does not error
-			ripe := hasherRIPEMD160.Sum(nil)
-			fmt.Printf("Ripe160(Sha256(Cosmos Public Key)): 0x%X\n", ripe)
+			hasherSHA256 = sha256.New()
+			hasherSHA256.Write(sha) // does not error
+			sha = hasherSHA256.Sum(nil)
+			fmt.Printf("Ripe160(Sha256(Cosmos Public Key)): 0x%X\n", sha)
 		}
 	}
 

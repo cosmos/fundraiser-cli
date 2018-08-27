@@ -6,10 +6,13 @@ zip = cd build && zip $(appname)_$(1)_$(2).zip $(appname)_$(1)_$(2)$(3) # && rm 
 
 .PHONY: all windows darwin linux clean
 
-all: windows darwin linux
+all: dep windows darwin linux
 
 clean:
 			rm -rf build/
+
+dep:
+	dep ensure
 
 ##### LINUX BUILDS #####
 linux: build/linux_arm.tar.gz build/linux_arm64.tar.gz build/linux_386.tar.gz build/linux_amd64.tar.gz

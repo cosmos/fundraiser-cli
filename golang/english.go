@@ -20,8 +20,8 @@ func init() {
 func validateBip39Words(mnemonic string) error {
 	mnemonic = strings.TrimSpace(mnemonic)
 	words := strings.Fields(mnemonic)
-	if len(words) != 12 {
-		return errors.New(fmt.Sprintf("Expected 12 words, got %v", len(words)))
+	if len(words) != 12 && len(words) != 24 {
+		return errors.New(fmt.Sprintf("Expected 12 or 24 words, got %v", len(words)))
 	}
 	for _, word := range words {
 		if _, ok := englishWordsMap[word]; !ok {
