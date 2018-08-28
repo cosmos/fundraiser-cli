@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"flag"
 	"fmt"
+	"golang.org/x/crypto/ripemd160"
 	"os"
 	"strings"
 
@@ -114,10 +115,10 @@ func main() {
 			hasherSHA256.Write(pubKey[:]) // does not error
 			sha := hasherSHA256.Sum(nil)
 			fmt.Printf("Sha256(Cosmos Public Key): 0x%X\n", sha)
-			hasherSHA256 = sha256.New()
-			hasherSHA256.Write(sha) // does not error
-			sha = hasherSHA256.Sum(nil)
-			fmt.Printf("Ripe160(Sha256(Cosmos Public Key)): 0x%X\n", sha)
+			hasherRIPEMD160 := ripemd160.New()
+			hasherRIPEMD160.Write(sha) // does not error
+			ripe := hasherRIPEMD160.Sum(nil)
+			fmt.Printf("Ripe160(Sha256(Cosmos Public Key)): 0x%X\n", ripe)
 		}
 	}
 
