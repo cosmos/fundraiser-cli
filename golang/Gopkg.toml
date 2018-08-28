@@ -21,15 +21,18 @@
 
 [[constraint]]
   name = "github.com/cosmos/cosmos-sdk"
-  version = "0.24.2"
+  revision = "1c38c70468ec721e3a555ba2f3bf5f9da31f0cc9"
+  # version = "0.24.2"
 
 [[constraint]]
   name = "github.com/cosmos/go-bip39"
-  branch = "master"
+  revision = "555e2067c45d9fcd7292bf3b8e732bc10ac8c58e"
+  # branch = "master"
 
 [[constraint]]
   name = "github.com/tendermint/tendermint"
-  version = "0.23.1-rc0"
+  revision = "81df19e68ab1519399fccf0cab81cb75bf9d782e"
+  # version = "0.23.1-rc0"
 
 [prune]
   go-tests = true

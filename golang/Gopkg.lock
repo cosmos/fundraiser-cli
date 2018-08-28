@@ -16,10 +16,8 @@
   name = "github.com/cosmos/cosmos-sdk"
   packages = ["crypto/keys/hd"]
   revision = "1c38c70468ec721e3a555ba2f3bf5f9da31f0cc9"
-  version = "v0.24.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/cosmos/go-bip39"
   packages = ["."]
   revision = "555e2067c45d9fcd7292bf3b8e732bc10ac8c58e"
@@ -96,7 +94,6 @@
     "libs/log"
   ]
   revision = "81df19e68ab1519399fccf0cab81cb75bf9d782e"
-  version = "v0.23.1-rc0"
 
 [[projects]]
   branch = "master"
@@ -110,6 +107,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8f7f6b65b7180d67224bb28554611068ce69a2e732f6192771193624674e4e8c"
+  inputs-digest = "e0cc6db8e5e3a40fc22f074a587620a14fb9f0681819814b4d1de0c125f86cad"
   solver-name = "gps-cdcl"
   solver-version = 1
